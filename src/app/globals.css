@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Wedding color palette — azul marinho, azul claro, terracota, tons terrosos */
+  --color-wedding-primary: #1B3A6B;        /* azul marinho */
+  --color-wedding-primary-light: #2E5299;  /* azul marinho mais claro (hover) */
+  --color-wedding-primary-dark: #0F2240;   /* azul marinho escuro */
+  --color-wedding-secondary: #FFFFFF;
+  --color-wedding-accent: #C0674A;         /* terracota */
+  --color-wedding-accent-light: #E8C4B0;   /* terracota suave */
+  --color-wedding-sky: #A8C4D8;            /* azul claro */
+  --color-wedding-sky-light: #D6E8F2;      /* azul claro suave */
+  --color-wedding-earth: #8B6F5E;          /* terroso médio */
+  --color-wedding-earth-light: #D4C4B8;    /* terroso claro */
+  --color-wedding-sand: #F5EDE4;           /* areia / fundo quente */
+  --color-error: #DC2626;
+  --color-success: #059669;
+  
+  /* Font families */
+  --font-family-serif: 'Playfair Display', serif;
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Custom spacing */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  
+  /* Breakpoints (TailwindCSS v4 default breakpoints align with requirements) */
+  /* sm: 640px, md: 768px (tablet), lg: 1024px (desktop), xl: 1280px, 2xl: 1536px */
+  /* Mobile: 320px-767px (default), Tablet: 768px-1023px (md:), Desktop: 1024px+ (lg:) */
+}
+
+:root {
+  --background: #F5EDE4;
+  --foreground: #1B3A6B;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-family-sans);
+}
+
+/* Cards e seções com fundo branco ficam sobre o fundo areia */
+.bg-white {
+  background-color: #ffffff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-serif);
+}
+
+/* Reusable component patterns */
+.card {
+  @apply bg-white rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow;
+}
+
+/* Botão principal: azul marinho com texto branco */
+.btn-primary {
+  @apply bg-wedding-primary text-white px-6 py-3 min-h-11 rounded-lg hover:bg-wedding-primary-light transition-colors font-medium inline-flex items-center justify-center;
+}
+
+/* Botão secundário: contorno azul marinho, texto azul marinho — sem terracota */
+.btn-secondary {
+  @apply border-2 border-wedding-primary text-wedding-primary px-6 py-3 min-h-11 rounded-lg hover:bg-wedding-primary hover:text-white transition-colors font-medium inline-flex items-center justify-center;
+}
+
+/* Botão accent: terracota sobre fundo claro (areia/branco), nunca sobre azul */
+.btn-accent {
+  @apply bg-wedding-accent text-white px-6 py-3 min-h-11 rounded-lg hover:opacity-90 transition-colors font-medium inline-flex items-center justify-center;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 min-h-[44px] border border-gray-300 rounded-md focus:ring-2 focus:ring-wedding-primary focus:border-transparent outline-none transition-all text-base;
+}
+
+.input-error {
+  @apply border-error focus:ring-error;
+}
+
+.text-error {
+  @apply text-error text-sm mt-1;
+}
+
+.text-success {
+  @apply text-success text-sm mt-1;
+}
+
+/* Ensure placeholder text meets WCAG AA contrast (≥4.5:1 on white) */
+/* Using gray-600 (#4B5563) which has ~7:1 contrast ratio on white */
+input::placeholder,
+textarea::placeholder {
+  color: #4B5563;
+  opacity: 1;
+}
+
+/* Focus ring: azul claro sobre qualquer fundo — harmoniza com azul marinho sem chocar */
+:focus-visible {
+  outline: 2px solid #A8C4D8;
+  outline-offset: 2px;
+}
+
+/* Typography utilities - Mobile-first responsive */
+.heading-xl {
+  @apply text-3xl sm:text-4xl lg:text-5xl font-serif font-bold;
+}
+
+.heading-lg {
+  @apply text-2xl sm:text-3xl lg:text-4xl font-serif font-semibold;
+}
+
+.heading-md {
+  @apply text-xl sm:text-2xl lg:text-3xl font-serif font-semibold;
+}
+
+.heading-sm {
+  @apply text-lg sm:text-xl lg:text-2xl font-serif font-medium;
+}
+

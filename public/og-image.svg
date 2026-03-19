@@ -1,0 +1,24 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#000080"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="100" r="80" fill="#E2725B" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="80" fill="#E2725B" opacity="0.1"/>
+  
+  <!-- Main content -->
+  <text x="600" y="250" font-family="serif" font-size="72" fill="#FFFFFF" text-anchor="middle" font-weight="600">
+    Andressa &amp; Eduardo
+  </text>
+  
+  <text x="600" y="330" font-family="sans-serif" font-size="36" fill="#E2725B" text-anchor="middle">
+    Nosso Casamento
+  </text>
+  
+  <text x="600" y="420" font-family="sans-serif" font-size="28" fill="#FFFFFF" text-anchor="middle" opacity="0.9">
+    Celebre conosco este momento especial
+  </text>
+  
+  <!-- Decorative line -->
+  <line x1="400" y1="360" x2="800" y2="360" stroke="#E2725B" stroke-width="2" opacity="0.5"/>
+</svg>
