@@ -289,12 +289,12 @@ describe('Gift registry – GiftCard external links', () => {
   const registries = [
     {
       storeName: 'Magazine Luiza',
-      storeUrl: 'https://www.magazineluiza.com.br',
+      storeUrl: 'https://www.finalfeliz.de/eduardo12-andressa16',
       description: 'Encontre presentes para casa',
     },
     {
       storeName: 'Havan',
-      storeUrl: 'https://www.havan.com.br',
+      storeUrl: 'https://lista.havan.com.br/Convidado/ItensListaPresente/908346',
       description: 'Variedade de produtos para o lar',
     },
   ];
