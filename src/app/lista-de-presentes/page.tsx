@@ -8,19 +8,19 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Lista de Presentes | Casamento Andressa & Eduardo',
     description: 'Acesse as listas de presentes do casal em nossas lojas parceiras.',
-    url: 'https://casamento-andressa-eduardo.com/lista-de-presentes',
+    url: 'https://wedding-app-web.vercel.app/lista-de-presentes',
   },
 };
 
 const giftRegistries = [
   {
     storeName: 'Magazine Luiza',
-    storeUrl: 'https://www.magazineluiza.com.br',
+    storeUrl: 'https://www.finalfeliz.de/eduardo12-andressa16',
     description: 'Encontre presentes para casa, eletrodomésticos e muito mais',
   },
   {
     storeName: 'Havan',
-    storeUrl: 'https://www.havan.com.br',
+    storeUrl: 'https://lista.havan.com.br/Convidado/ItensListaPresente/908346',
     description: 'Variedade de produtos para o lar e decoração',
   },
 ];
