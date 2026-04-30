@@ -1,96 +1,128 @@
 # Deployment Guide
 
+## Current State
+
+This repository is a `Next.js 16` application with:
+
+- App Router pages
+- A server-side RSVP API route at `src/app/api/rsvp/route.ts`
+- Postgres access through `DATABASE_URL`
+- Public runtime configuration through `NEXT_PUBLIC_*` variables
+
+Because the project includes a server route, it should be deployed as a full Node/Next.js app, not as a static export.
+
+## Recommendation
+
+- Prefer `Vercel` if you want the smoothest setup for Next.js.
+- Use `Render` if you want to host the app as a traditional Node web service.
+
+Both options require the same application environment variables.
+
 ## Prerequisites
 
-- [Vercel account](https://vercel.com)
-- [Supabase project](https://supabase.com) with the RSVP table created (see `supabase/README.md`)
-- [Google Maps API key](https://console.cloud.google.com) with **Maps JavaScript API** enabled
-- Node.js 18+ installed locally
+- Node.js `20.9+`
+- A GitHub repository for the project
+- A Postgres database exposed via `DATABASE_URL`
+- Optional Supabase project values if parts of the UI still consume them
+- A Google Maps API key with **Maps JavaScript API** enabled
 
----
+## Required Environment Variables
 
-## 1. Deploy to Vercel
+Copy `.env.example` for local development and set the same values in your deployment platform.
 
-### Option A — GitHub Integration (recommended)
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | Postgres connection string used by the RSVP API |
+| `NEXT_PUBLIC_SUPABASE_URL` | Optional | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Optional | Supabase anon/public key |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Yes | Google Maps JavaScript API key |
+| `NEXT_PUBLIC_WEDDING_DATE` | Yes | ISO 8601 date, for example `2026-09-26T10:30:00-03:00` |
+| `NEXT_PUBLIC_CEREMONY_LAT` | Yes | Ceremony latitude |
+| `NEXT_PUBLIC_CEREMONY_LNG` | Yes | Ceremony longitude |
+| `NEXT_PUBLIC_CEREMONY_ADDRESS` | Yes | Full ceremony address |
+| `NEXT_PUBLIC_CEREMONY_VENUE_NAME` | Yes | Venue name |
+| `NEXT_PUBLIC_CEREMONY_DATE_DISPLAY` | Yes | Display date text |
+| `NEXT_PUBLIC_CEREMONY_TIME` | Yes | Ceremony time |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Public base URL, for example `https://your-domain.com` |
+
+## Deploy to Vercel
+
+Vercel supports Next.js with zero-config defaults for this type of app.
+
+### Steps
 
 1. Push the repository to GitHub.
-2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
-3. Vercel auto-detects Next.js — no build settings need to change.
-4. Add all environment variables (see section 2 below) before clicking **Deploy**.
+2. Import the repository in Vercel.
+3. Keep the detected framework as `Next.js`.
+4. Add the environment variables listed above.
+5. Deploy.
 
-### Option B — Vercel CLI
+### Notes
 
-```bash
-npm i -g vercel
-vercel login
-vercel --prod
-```
+- The existing `vercel.json` already defines redirects, headers, and the `gru1` region.
+- If you use a managed Postgres provider, set its connection string as `DATABASE_URL`.
+- If you later attach a custom domain, update `NEXT_PUBLIC_SITE_URL` and redeploy.
 
-Follow the prompts. When asked about environment variables, add them via the Vercel dashboard after the first deploy.
+## Deploy to Render
 
----
+This repo now includes a `render.yaml` blueprint for a Node web service.
 
-## 2. Required Environment Variables
+### Steps
 
-Set these in **Vercel → Project → Settings → Environment Variables** for the **Production** environment.
+1. Push the repository to GitHub.
+2. In Render, create a new Blueprint instance or Web Service from the repo.
+3. Render should detect the `render.yaml` file.
+4. Fill in all environment variables marked with `sync: false`.
+5. Deploy the service.
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (Settings → API) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key (Settings → API) |
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Maps JavaScript API key |
-| `NEXT_PUBLIC_WEDDING_DATE` | ISO 8601 date string, e.g. `2024-12-15T16:00:00-03:00` |
-| `NEXT_PUBLIC_CEREMONY_LAT` | Ceremony latitude, e.g. `-23.550520` |
-| `NEXT_PUBLIC_CEREMONY_LNG` | Ceremony longitude, e.g. `-46.633308` |
-| `NEXT_PUBLIC_CEREMONY_ADDRESS` | Full address text (fallback if Maps fails) |
-| `NEXT_PUBLIC_CEREMONY_VENUE_NAME` | Venue name displayed on ceremony page |
-| `NEXT_PUBLIC_CEREMONY_DATE_DISPLAY` | Human-readable date, e.g. `15 de Dezembro de 2024` |
-| `NEXT_PUBLIC_CEREMONY_TIME` | Ceremony time, e.g. `16:00` |
-| `NEXT_PUBLIC_SITE_URL` | Canonical site URL, e.g. `https://casamento-andressa-eduardo.com` |
+### Render service settings
 
-Copy `.env.example` to `.env.local` for local development and fill in the values.
+- Build command: `npm ci && npm run build`
+- Start command: `npm run start`
+- Runtime: `Node`
+- Node version: `20.9.0`
 
----
+### Notes
 
-## 3. Custom Domain
+- Render provides the port automatically; `next start` is compatible with that flow.
+- This project should be deployed as a `Web Service`, not a static site, because of `/api/rsvp`.
 
-1. In Vercel → Project → **Settings → Domains**, click **Add**.
-2. Enter your domain (e.g. `casamento-andressa-eduardo.com`).
-3. Vercel shows the DNS records to add — go to your domain registrar and add them:
-   - **A record**: `@` → Vercel IP shown in dashboard
-   - **CNAME record**: `www` → `cname.vercel-dns.com`
-4. Wait for DNS propagation (usually a few minutes, up to 48 hours).
-5. Vercel automatically provisions an HTTPS certificate via Let's Encrypt.
+## Database Strategy
 
----
+Today the code writes RSVP data using `DATABASE_URL` and `@neondatabase/serverless`.
 
-## 4. Local Production Build
+That means you should choose one of these approaches:
 
-To verify the production build locally before deploying:
+1. Keep the current code and provide any compatible Postgres connection string.
+2. Refactor the RSVP route to use the Supabase client directly if you want Supabase-only architecture.
+
+Right now, the project documentation mentioned Supabase in several places, but the server route actually depends on `DATABASE_URL`.
+
+## Local Production Validation
+
+Run these commands before deploying:
 
 ```bash
-npm run type-check   # TypeScript validation
-npm run lint         # ESLint check
-npm run build        # Production build
-npm run start        # Serve production build at http://localhost:3000
+npm install
+npm run type-check
+npm run lint
+npm run build
+npm run start
 ```
 
-To analyze bundle sizes:
+If you are on Windows PowerShell and `npm.ps1` is blocked, use:
 
 ```bash
-npm run analyze
+cmd /c npm run build
 ```
 
----
+## Post-Deploy Checklist
 
-## 5. Post-Deployment Checklist
-
-- [ ] All pages load correctly
-- [ ] RSVP form submits and data appears in Supabase
-- [ ] Google Maps loads on the ceremony page
-- [ ] Countdown timer shows correct time remaining
-- [ ] Gift registry links open in new tab
-- [ ] PWA install prompt appears on mobile
-- [ ] Offline page shows when network is unavailable
-- [ ] HTTPS certificate is active on custom domain
-- [ ] Open Graph image appears when sharing on social media
+- Home page loads correctly
+- Internal navigation works
+- Ceremony map loads
+- RSVP form submits successfully
+- RSVP rows are persisted in the database
+- PWA assets are served correctly
+- Metadata and social preview use the correct public URL
+- Redirects from `/rsvp`, `/gifts`, and `/gallery` work

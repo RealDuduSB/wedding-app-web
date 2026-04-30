@@ -1,8 +1,8 @@
 import { neon } from '@neondatabase/serverless';
 import type { RSVPRecord } from '@/types';
 
-// Neon/Vercel Postgres configuration
-// DATABASE_URL is automatically injected by Vercel when you connect a Neon database
+// Server-side Postgres connection used by the RSVP API route.
+// Works on Vercel, Render, or any platform that provides DATABASE_URL.
 const connectionString = process.env.DATABASE_URL;
 
 export const isDbConfigured = Boolean(connectionString);
@@ -10,7 +10,7 @@ export const isDbConfigured = Boolean(connectionString);
 if (!isDbConfigured) {
   console.warn(
     'DATABASE_URL is missing. ' +
-    'Connect a Neon database in your Vercel project settings. ' +
+    'Configure a Postgres connection string in your deployment environment. ' +
     'RSVP submissions will be unavailable until this is resolved.'
   );
 }

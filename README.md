@@ -102,12 +102,12 @@ See `.env.example` for required environment variables:
 
 ## Deployment
 
-This project is configured for deployment on Vercel:
+This project can run on both Vercel and Render.
 
-1. Push your code to GitHub
-2. Import the project in Vercel
-3. Configure environment variables
-4. Deploy!
+- `Vercel`: best fit for this repo because it is a Next.js app with App Router and an internal API route.
+- `Render`: also supported as a Node web service using `render.yaml`.
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for the complete setup.
 
 ## License
 
