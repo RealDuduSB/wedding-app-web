@@ -79,7 +79,7 @@ export function MapComponent({
           )}
           <p className="text-sm sm:text-base text-gray-600 mb-4">{address}</p>
           <a
-            href={`https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`}
+            href={`https://maps.app.goo.gl/huo7i1N1Up9Tr7RQ8`}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Abrir localização no Google Maps (abre em nova aba)"
