@@ -81,7 +81,7 @@ See `.env.example` for required environment variables:
 
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
-- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps Embed API key
 - `NEXT_PUBLIC_WEDDING_DATE` - Wedding date (ISO format)
 - `NEXT_PUBLIC_CEREMONY_LAT` - Ceremony latitude
 - `NEXT_PUBLIC_CEREMONY_LNG` - Ceremony longitude

@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { MapComponentProps } from '@/types';
 
-const containerStyle = {
-  width: '100%',
-  height: '300px', // Smaller on mobile by default
+const getDirectionsUrl = (latitude: number, longitude: number) =>
+  `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+
+const getMapsUrl = (address: string) => {
+  const query = encodeURIComponent(address);
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
 };
 
-// Responsive height adjustment
-const getContainerStyle = (isMobile: boolean) => ({
-  width: '100%',
-  height: isMobile ? '300px' : '400px',
-});
+const getEmbedUrl = (apiKey: string, address: string, zoom: number) => {
+  const query = encodeURIComponent(address);
+  return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${query}&zoom=${zoom}`;
+};
 
 export function MapComponent({
   latitude,
@@ -21,32 +21,17 @@ export function MapComponent({
   address,
   zoom = 15,
 }: MapComponentProps) {
-  const [mapError, setMapError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const center = {
-    lat: latitude,
-    lng: longitude,
-  };
-
-  const handleLoad = useCallback(() => {
-    setIsLoading(false);
-  }, []);
-
-  const handleError = useCallback(() => {
-    setMapError(true);
-    setIsLoading(false);
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[MapComponent] Google Maps API failed to load. Displaying fallback address.');
-    }
-  }, []);
-
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const mapsUrl = getMapsUrl(address);
+  const directionsUrl = getDirectionsUrl(latitude, longitude);
 
-  // If no API key or error occurred, show fallback
-  if (!apiKey || mapError) {
+  if (!apiKey) {
     return (
-      <div className="w-full min-h-75 sm:min-h-100 bg-gray-100 rounded-xl flex flex-col items-center justify-center p-4 sm:p-6 text-center" role="region" aria-label="Localização da cerimônia">
+      <div
+        className="w-full min-h-75 sm:min-h-100 bg-gray-100 rounded-xl flex flex-col items-center justify-center p-4 sm:p-6 text-center"
+        role="region"
+        aria-label="Localização da cerimônia"
+      >
         <div className="max-w-md">
           <svg
             className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-400"
@@ -69,58 +54,78 @@ export function MapComponent({
               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
+
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
             Localização da Cerimônia
           </h3>
-          {mapError && (
-            <p className="text-sm text-amber-600 mb-2">
-              Não foi possível carregar o mapa. Exibindo endereço abaixo.
-            </p>
-          )}
           <p className="text-sm sm:text-base text-gray-600 mb-4">{address}</p>
-          <a
-            href={`https://maps.app.goo.gl/huo7i1N1Up9Tr7RQ8`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Abrir localização no Google Maps (abre em nova aba)"
-            className="inline-flex items-center justify-center min-h-11 bg-wedding-primary text-white px-6 py-3 rounded-md hover:bg-wedding-primary-light transition-colors text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-wedding-sky focus-visible:ring-offset-2"
-          >
-            Abrir no Google Maps
-          </a>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Abrir no Google Maps (abre em nova aba)"
+              className="inline-flex items-center justify-center min-h-11 bg-wedding-primary text-white px-6 py-3 rounded-md hover:bg-wedding-primary-light transition-colors text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-wedding-sky focus-visible:ring-offset-2"
+            >
+              Abrir no Google Maps
+            </a>
+
+            <a
+              href={directionsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Como chegar ao local da cerimônia (abre em nova aba)"
+              className="inline-flex items-center justify-center min-h-11 border border-wedding-primary text-wedding-primary px-6 py-3 rounded-md hover:bg-wedding-primary/5 transition-colors text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-wedding-sky focus-visible:ring-offset-2"
+            >
+              Como chegar
+            </a>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-75 sm:min-h-100 rounded-xl overflow-hidden shadow-md" role="region" aria-label="Mapa interativo com localização da cerimônia">
-      {isLoading && (
-        <div className="w-full h-75 sm:h-100 bg-gray-100 flex items-center justify-center">
-          <div className="text-gray-500 text-sm sm:text-base">Carregando mapa...</div>
+    <div
+      className="w-full min-h-75 sm:min-h-100 rounded-xl overflow-hidden shadow-md bg-white"
+      role="region"
+      aria-label="Mapa interativo com localização da cerimônia"
+    >
+      <iframe
+        title="Mapa do local da cerimônia"
+        src={getEmbedUrl(apiKey, address, zoom)}
+        width="100%"
+        height="400"
+        className="w-full h-[300px] sm:h-[400px] border-0"
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+
+      <div className="p-4 bg-white border-t border-gray-100 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <p className="text-sm text-gray-600">{address}</p>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center min-h-11 bg-wedding-primary text-white px-5 py-3 rounded-md hover:bg-wedding-primary-light transition-colors text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-wedding-sky focus-visible:ring-offset-2"
+          >
+            Abrir no Google Maps
+          </a>
+
+          <a
+            href={directionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center min-h-11 border border-wedding-primary text-wedding-primary px-5 py-3 rounded-md hover:bg-wedding-primary/5 transition-colors text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-wedding-sky focus-visible:ring-offset-2"
+          >
+            Como chegar
+          </a>
         </div>
-      )}
-      <LoadScript googleMapsApiKey={apiKey} onLoad={handleLoad} onError={handleError}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={center}
-          zoom={zoom}
-          options={{
-            zoomControl: true,
-            streetViewControl: false,
-            mapTypeControl: false,
-            fullscreenControl: true,
-            styles: [
-              {
-                featureType: 'poi',
-                elementType: 'labels',
-                stylers: [{ visibility: 'off' }],
-              },
-            ],
-          }}
-        >
-          <Marker position={center} title={address} />
-        </GoogleMap>
-      </LoadScript>
+      </div>
     </div>
   );
 }

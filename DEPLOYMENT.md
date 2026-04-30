@@ -24,7 +24,7 @@ Both options require the same application environment variables.
 - A GitHub repository for the project
 - A Postgres database exposed via `DATABASE_URL`
 - Optional Supabase project values if parts of the UI still consume them
-- A Google Maps API key with **Maps JavaScript API** enabled
+- A Google Maps API key with **Maps Embed API** enabled
 
 ## Required Environment Variables
 
@@ -35,7 +35,7 @@ Copy `.env.example` for local development and set the same values in your deploy
 | `DATABASE_URL` | Yes | Postgres connection string used by the RSVP API |
 | `NEXT_PUBLIC_SUPABASE_URL` | Optional | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Optional | Supabase anon/public key |
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Yes | Google Maps JavaScript API key |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Yes | Google Maps Embed API key |
 | `NEXT_PUBLIC_WEDDING_DATE` | Yes | ISO 8601 date, for example `2026-09-26T10:30:00-03:00` |
 | `NEXT_PUBLIC_CEREMONY_LAT` | Yes | Ceremony latitude |
 | `NEXT_PUBLIC_CEREMONY_LNG` | Yes | Ceremony longitude |
