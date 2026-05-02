@@ -44,6 +44,7 @@ export interface GalleryImage {
   height: number;
   order: number;
   category?: string;
+  objectPosition?: string;
 }
 
 // Gift Registry Models
@@ -56,6 +57,21 @@ export interface GiftRegistry {
   order: number;
 }
 
+export interface WeddingLocation {
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface WeddingEventDetails {
+  date: string;
+  time: string;
+  title?: string;
+  description?: string;
+  location: WeddingLocation;
+}
+
 // Wedding Configuration
 export interface WeddingConfig {
   coupleNames: {
@@ -63,16 +79,8 @@ export interface WeddingConfig {
     groom: string;
   };
   weddingDate: Date;
-  ceremony: {
-    date: string;
-    time: string;
-    location: {
-      name: string;
-      address: string;
-      latitude: number;
-      longitude: number;
-    };
-  };
+  ceremony: WeddingEventDetails;
+  reception: WeddingEventDetails;
   colors: {
     primary: string;
     secondary: string;
@@ -116,6 +124,12 @@ export interface MapComponentProps {
   longitude: number;
   address: string;
   zoom?: number;
+  showActions?: boolean;
+  showAddress?: boolean;
+  variant?: 'default' | 'embedded';
+  customMapsUrl?: string;
+  customDirectionsUrl?: string;
+  customEmbedUrl?: string;
 }
 
 export interface TimelineProps {

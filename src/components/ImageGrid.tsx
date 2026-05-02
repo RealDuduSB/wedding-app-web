@@ -88,6 +88,7 @@ export function ImageGrid({ images, columns = { mobile: 1, tablet: 2, desktop: 3
                 className={`object-cover w-full h-full transition-opacity duration-300 ${
                   loadedImages.has(image.id) ? 'opacity-100' : 'opacity-0'
                 }`}
+                style={{ objectPosition: image.objectPosition || 'center center' }}
                 loading="lazy"
                 placeholder="blur"
                 blurDataURL={getBlurDataURL()}

@@ -33,9 +33,17 @@ export function useCountdown(targetDate: Date): CountdownState {
     };
   };
 
-  const [timeLeft, setTimeLeft] = useState<CountdownState>(calculateTimeLeft);
+  const [timeLeft, setTimeLeft] = useState<CountdownState>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false,
+  });
 
   useEffect(() => {
+    setTimeLeft(calculateTimeLeft());
+
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
