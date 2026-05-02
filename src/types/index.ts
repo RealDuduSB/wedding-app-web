@@ -28,6 +28,8 @@ export interface TimelineEvent {
   title: string;
   description: string;
   imageUrl?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   imageAspect?: 'landscape' | 'portrait' | 'square';
   imagePosition?: 'center' | 'top' | 'bottom';
   order: number;

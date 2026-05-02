@@ -61,12 +61,6 @@ export default function Timeline({ events }: TimelineProps) {
       >
         {sortedEvents.map((event, index) => {
           const isEven = index % 2 === 0;
-          const imageAspectClass =
-            event.imageAspect === 'portrait'
-              ? 'aspect-[4/5] sm:aspect-[5/6] md:aspect-[4/5]'
-              : event.imageAspect === 'square'
-                ? 'aspect-square'
-                : 'aspect-[4/3] sm:aspect-[16/11] md:aspect-[3/2]';
           
           return (
             <motion.div
@@ -94,29 +88,24 @@ export default function Timeline({ events }: TimelineProps) {
                   </h3>
 
                   {/* Description */}
-                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
+                  <p className="text-sm sm:text-base text-gray-600">
                     {event.description}
                   </p>
 
-                  {/* Responsive image frame that preserves the full photo */}
-                  {event.imageUrl && (
-                    <div className="relative mt-4 w-full overflow-hidden rounded-md bg-stone-100 ring-1 ring-black/5">
-                      <div className={`relative w-full ${imageAspectClass}`}>
+                  {/* Image follows the text width and keeps its natural height */}
+                  {event.imageUrl && event.imageWidth && event.imageHeight && (
+                    <div className="mt-3 sm:mt-4">
                         <Image
                           src={event.imageUrl}
                           alt={`${event.title} - ${event.date}`}
-                          fill
-                          className={`object-contain p-1 sm:p-2 ${
-                            event.imagePosition === 'top' ? 'object-top' :
-                            event.imagePosition === 'bottom' ? 'object-bottom' :
-                            'object-center'
-                          }`}
+                          width={event.imageWidth}
+                          height={event.imageHeight}
+                          className="block w-full h-auto rounded-md"
                           loading="lazy"
-                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 85vw, 42vw"
+                          sizes="(max-width: 768px) 100vw, 42vw"
                           placeholder="blur"
                           blurDataURL={getBlurDataURL()}
                         />
-                      </div>
                     </div>
                   )}
                 </div>
