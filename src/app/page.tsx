@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { Countdown } from '@/components';
 import { AnimatedLink } from '@/components/AnimatedLink';
 import { weddingConfig } from '@/lib/config';
+import { calculateTimeLeft } from '@/lib/countdown';
 import { getWeddingBlurDataURL } from '@/lib/image-blur';
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   const { coupleNames, weddingDate, ceremony } = weddingConfig;
+  const initialCountdownState = calculateTimeLeft(weddingDate, new Date());
 
   return (
     <main className="min-h-screen">
@@ -49,7 +51,10 @@ export default function Home() {
 
         {/* Countdown Display */}
         <div className="mb-8 sm:mb-12 w-full">
-          <Countdown targetDate={weddingDate} />
+          <Countdown
+            targetDate={weddingDate}
+            initialState={initialCountdownState}
+          />
         </div>
 
         {/* CTA Button - Minimum 44x44px touch target */}

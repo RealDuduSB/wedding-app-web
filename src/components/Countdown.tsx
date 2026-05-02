@@ -2,16 +2,25 @@
 
 import { memo } from 'react';
 import { motion } from 'framer-motion';
+import { CountdownState } from '@/lib/countdown';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface CountdownProps {
   targetDate: Date;
+  initialState?: CountdownState;
   className?: string;
 }
 
-function CountdownComponent({ targetDate, className = '' }: CountdownProps) {
-  const { days, hours, minutes, seconds, isExpired } = useCountdown(targetDate);
+function CountdownComponent({
+  targetDate,
+  initialState,
+  className = '',
+}: CountdownProps) {
+  const { days, hours, minutes, seconds, isExpired } = useCountdown(
+    targetDate,
+    initialState
+  );
   const shouldReduceMotion = useReducedMotion();
 
   if (isExpired) {
