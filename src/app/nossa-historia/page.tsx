@@ -38,7 +38,7 @@ const timelineEvents: TimelineEvent[] = [
     date: '17 de Setembro de 2022',
     title: 'O Primeiro Beijo',
     description: 'Depois de três meses conversando — e da Andressa enrolando para marcar um encontro — finalmente chegou o dia. Eles foram juntos a uma festa universitária dos estudantes de Direito da FDF, mas antes se encontraram no shopping para almoçar e conversar pessoalmente pela primeira vez. Na hora de ir embora, Andressa ia deixar Eduardo na casa dos tios-avós dele. Mas Eduardo perguntou se não iam se beijar, que deveriam parar para conversar. Ela parou o Uno rebaixado dela perto da antiga clínica no centro e disse: "Você não quer conversar? Então vamos conversar." — e ali veio o primeiro beijo. Eduardo ficou perdidinho. Mais tarde, na festa, ele fez a Andressa rir muito, fez amizade com todo mundo e até pegou um paiero inteiro do chão, fingiu que era dele e entregou ao dono com toda a naturalidade. Dançaram, riram, e não se desgrudam mais.',
-    imageUrl: '/images/foto1_eduardo_andressa.jpg',
+    imageUrl: '/images/beijo.jpeg',
     imageAspect: 'portrait',
     order: 3,
   },
