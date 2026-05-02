@@ -45,7 +45,7 @@ const timelineEvents: TimelineEvent[] = [
     date: '10 de Setembro de 2024',
     title: 'O Pedido',
     description: 'Eduardo convidou Andressa para um jantar, sem revelar muito. Mesa reservada, ambiente intimista, vinho escolhido a dedo. Enquanto degustavam um risoto, a conversa fluía como sempre — até o momento em que Eduardo parou, olhou nos olhos dela e fez a pergunta que mudaria tudo. Dois anos depois daquele story do Banguela, ele pedia a Andressa em casamento. Ela disse sim.',
-    imageUrl: '/images/timeline/proposal.jpg',
+    imageUrl: '/public/images/anel.jpeg',
     order: 4,
   },
   {

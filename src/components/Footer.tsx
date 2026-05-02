@@ -10,7 +10,7 @@ export function Footer() {
             © {currentYear} Todos os direitos reservados
           </p>
           <p className="text-xs text-gray-400 mt-2">
-            Feito com 💙 pelo noivo{' '}
+            Feito com muito amor pelo noivo{' '}
             <a
               href="https://github.com/RealDuduSB"
               target="_blank"
@@ -20,7 +20,7 @@ export function Footer() {
             >
               Eduardo
             </a>
-            {' '}— porque além de casar, ele ainda colocou isso no GitHub 🤦
+            {' '}—
           </p>
         </div>
       </div>

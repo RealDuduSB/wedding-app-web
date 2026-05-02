@@ -92,23 +92,25 @@ export default function Timeline({ events }: TimelineProps) {
                     {event.description}
                   </p>
 
-                  {/* Image with lazy loading and blur placeholder */}
+                  {/* Responsive image frame that preserves the full photo */}
                   {event.imageUrl && (
-                    <div className="relative w-full h-48 sm:h-56 md:h-64 rounded-md overflow-hidden">
-                      <Image
-                        src={event.imageUrl}
-                        alt={`${event.title} - ${event.date}`}
-                        fill
-                        className={`object-cover ${
-                          event.imagePosition === 'top' ? 'object-top' :
-                          event.imagePosition === 'bottom' ? 'object-bottom' :
-                          'object-center'
-                        }`}
-                        loading="lazy"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        placeholder="blur"
-                        blurDataURL={getBlurDataURL()}
-                      />
+                    <div className="relative mt-4 w-full overflow-hidden rounded-md bg-stone-100 ring-1 ring-black/5">
+                      <div className="relative aspect-[4/3] w-full sm:aspect-[16/11] md:aspect-[3/2]">
+                        <Image
+                          src={event.imageUrl}
+                          alt={`${event.title} - ${event.date}`}
+                          fill
+                          className={`object-contain p-1 sm:p-2 ${
+                            event.imagePosition === 'top' ? 'object-top' :
+                            event.imagePosition === 'bottom' ? 'object-bottom' :
+                            'object-center'
+                          }`}
+                          loading="lazy"
+                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 85vw, 42vw"
+                          placeholder="blur"
+                          blurDataURL={getBlurDataURL()}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
