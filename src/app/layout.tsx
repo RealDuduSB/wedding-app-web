@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer';
 import { ClientLayout } from '@/components/ClientLayout';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { siteUrl } from '@/lib/config';
 
 const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
@@ -22,6 +23,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'Casamento Andressa & Eduardo',
     template: '%s | Casamento Andressa & Eduardo',

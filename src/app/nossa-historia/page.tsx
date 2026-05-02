@@ -29,7 +29,8 @@ const timelineEvents: TimelineEvent[] = [
     date: 'Agosto de 2022',
     title: 'A Formatura',
     description: 'Antes mesmo de se encontrarem pessoalmente, o destino já havia tramado uma coincidência improvável. O pai da Andressa, Marcelo, é videomaker de eventos — formaturas, casamentos, celebrações. E foi exatamente ele quem filmou a formatura de Eduardo em Sistemas de Informação. Sem saber, a família dela já estava presente em um dos momentos mais importantes da vida dele.',
-    imageUrl: '/images/timeline/moving-together.jpg',
+    imageUrl: '/images/foto1_eduardo_andressa.jpg',
+    imageAspect: 'portrait',
     order: 2,
   },
   {
@@ -37,7 +38,8 @@ const timelineEvents: TimelineEvent[] = [
     date: '17 de Setembro de 2022',
     title: 'O Primeiro Beijo',
     description: 'Depois de três meses conversando — e da Andressa enrolando para marcar um encontro — finalmente chegou o dia. Eles foram juntos a uma festa universitária dos estudantes de Direito da FDF, mas antes se encontraram no shopping para almoçar e conversar pessoalmente pela primeira vez. Na hora de ir embora, Andressa ia deixar Eduardo na casa dos tios-avós dele. Mas Eduardo perguntou se não iam se beijar, que deveriam parar para conversar. Ela parou o Uno rebaixado dela perto da antiga clínica no centro e disse: "Você não quer conversar? Então vamos conversar." — e ali veio o primeiro beijo. Eduardo ficou perdidinho. Mais tarde, na festa, ele fez a Andressa rir muito, fez amizade com todo mundo e até pegou um paiero inteiro do chão, fingiu que era dele e entregou ao dono com toda a naturalidade. Dançaram, riram, e não se desgrudam mais.',
-    imageUrl: '/images/timeline/first-kiss.jpg',
+    imageUrl: '/images/foto1_eduardo_andressa.jpg',
+    imageAspect: 'portrait',
     order: 3,
   },
   {
@@ -45,7 +47,8 @@ const timelineEvents: TimelineEvent[] = [
     date: '10 de Setembro de 2024',
     title: 'O Pedido',
     description: 'Eduardo convidou Andressa para um jantar, sem revelar muito. Mesa reservada, ambiente intimista, vinho escolhido a dedo. Enquanto degustavam um risoto, a conversa fluía como sempre — até o momento em que Eduardo parou, olhou nos olhos dela e fez a pergunta que mudaria tudo. Dois anos depois daquele story do Banguela, ele pedia a Andressa em casamento. Ela disse sim.',
-    imageUrl: '/public/images/anel.jpeg',
+    imageUrl: '/images/anel.jpeg',
+    imageAspect: 'portrait',
     order: 4,
   },
   {
@@ -53,7 +56,8 @@ const timelineEvents: TimelineEvent[] = [
     date: '26 de Setembro de 2026',
     title: 'O Grande Dia',
     description: 'Finalmente chegou o dia de celebrar esse amor que começou com um bulldog francês num story do Instagram. Cercados de família e amigos, Andressa e Eduardo dizem sim para uma vida inteira juntos.',
-    imageUrl: '/images/timeline/wedding-day.jpg',
+    imageUrl: '/images/capelinha.jpeg',
+    imageAspect: 'portrait',
     order: 5,
   },
 ];

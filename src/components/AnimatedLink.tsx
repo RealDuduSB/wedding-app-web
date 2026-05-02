@@ -24,15 +24,15 @@ export function AnimatedLink({
   const tapScale = shouldReduceMotion ? 1 : 0.95;
 
   return (
-    <Link {...linkProps} legacyBehavior passHref>
-      <motion.a
+    <Link {...linkProps}>
+      <motion.span
         className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-wedding-sky focus-visible:ring-offset-2 ${className}`}
         whileHover={{ scale: hoverScale }}
         whileTap={{ scale: tapScale }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       >
         {children}
-      </motion.a>
+      </motion.span>
     </Link>
   );
 }

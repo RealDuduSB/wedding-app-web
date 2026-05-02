@@ -61,6 +61,12 @@ export default function Timeline({ events }: TimelineProps) {
       >
         {sortedEvents.map((event, index) => {
           const isEven = index % 2 === 0;
+          const imageAspectClass =
+            event.imageAspect === 'portrait'
+              ? 'aspect-[4/5] sm:aspect-[5/6] md:aspect-[4/5]'
+              : event.imageAspect === 'square'
+                ? 'aspect-square'
+                : 'aspect-[4/3] sm:aspect-[16/11] md:aspect-[3/2]';
           
           return (
             <motion.div
@@ -95,7 +101,7 @@ export default function Timeline({ events }: TimelineProps) {
                   {/* Responsive image frame that preserves the full photo */}
                   {event.imageUrl && (
                     <div className="relative mt-4 w-full overflow-hidden rounded-md bg-stone-100 ring-1 ring-black/5">
-                      <div className="relative aspect-[4/3] w-full sm:aspect-[16/11] md:aspect-[3/2]">
+                      <div className={`relative w-full ${imageAspectClass}`}>
                         <Image
                           src={event.imageUrl}
                           alt={`${event.title} - ${event.date}`}

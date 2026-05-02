@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import { Metadata } from 'next';
 import { Countdown } from '@/components';
 import { AnimatedLink } from '@/components/AnimatedLink';
