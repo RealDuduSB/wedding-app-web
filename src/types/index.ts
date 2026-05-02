@@ -4,6 +4,7 @@ export interface RSVPFormData {
   phone: string;
   email: string;
   numberOfGuests: number;
+  guestNames: string[];
   dietaryRestrictions?: string;
 }
 
@@ -18,6 +19,7 @@ export interface FormErrors {
   phone?: string;
   email?: string;
   numberOfGuests?: string;
+  guestNames?: string;
   dietaryRestrictions?: string;
 }
 
@@ -104,6 +106,7 @@ export interface NavbarProps {
 
 export interface CountdownProps {
   targetDate: Date;
+  initialState?: CountdownState;
   className?: string;
 }
 

@@ -23,7 +23,9 @@ export interface RSVPRow {
   phone: string;
   email: string;
   number_of_guests: number;
+  guest_names: string[] | null;
   dietary_restrictions: string | null;
+  contact_message: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -35,6 +37,7 @@ export function dbRowToRSVPRecord(row: RSVPRow): RSVPRecord {
     phone: row.phone,
     email: row.email,
     numberOfGuests: row.number_of_guests,
+    guestNames: row.guest_names || [],
     dietaryRestrictions: row.dietary_restrictions || undefined,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),

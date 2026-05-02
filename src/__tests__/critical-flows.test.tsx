@@ -154,6 +154,7 @@ describe('RSVP Form - full submission flow', () => {
     const guestsInput = screen.getByLabelText(/número de convidados/i);
     await userEvent.clear(guestsInput);
     await userEvent.type(guestsInput, '2');
+    await userEvent.type(screen.getByPlaceholderText(/nome do acompanhante 1/i), 'Carlos Silva');
 
     await userEvent.click(screen.getByRole('button', { name: /confirmar presença/i }));
 

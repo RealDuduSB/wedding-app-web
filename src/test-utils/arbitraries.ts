@@ -65,5 +65,9 @@ export const validRSVPArbitrary = fc.record({
   phone: validPhoneArbitrary,
   email: validEmailArbitrary,
   numberOfGuests: validGuestCountArbitrary,
+  guestNames: fc.array(
+    fc.string({ minLength: 2, maxLength: 100 }).filter(s => s.trim().length >= 2),
+    { minLength: 0, maxLength: 9 }
+  ),
   dietaryRestrictions: dietaryRestrictionsArbitrary,
-})
+}).filter((rsvp) => rsvp.guestNames.length === Math.max(0, rsvp.numberOfGuests - 1))

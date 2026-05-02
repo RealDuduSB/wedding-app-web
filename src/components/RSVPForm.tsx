@@ -2,10 +2,14 @@
 
 import { useState, FormEvent, ChangeEvent } from 'react';
 import type { RSVPFormData, FormErrors } from '@/types';
-import { validateEmail, validatePhone, validateRequired, validatePositiveInteger } from '@/lib/validation';
+import {
+  validateEmail,
+  validatePhone,
+  validateRequired,
+  validatePositiveInteger,
+} from '@/lib/validation';
 import { AnimatedButton } from './AnimatedButton';
 
-// Retry configuration
 const MAX_RETRIES = 2;
 const RETRY_BASE_DELAY_MS = 1000;
 
@@ -32,13 +36,12 @@ async function fetchWithRetry(
   retries = MAX_RETRIES
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
 
   try {
     const response = await fetch(url, { ...options, signal: controller.signal });
     clearTimeout(timeoutId);
 
-    // Retry on transient server errors
     if (isTransientError(response.status) && retries > 0) {
       const delay = RETRY_BASE_DELAY_MS * (MAX_RETRIES - retries + 1);
       await new Promise((resolve) => setTimeout(resolve, delay));
@@ -49,7 +52,6 @@ async function fetchWithRetry(
   } catch (error) {
     clearTimeout(timeoutId);
 
-    // Retry on network errors (but not on abort from our own timeout)
     const isAbortError = error instanceof DOMException && error.name === 'AbortError';
     if (!isAbortError && retries > 0) {
       const delay = RETRY_BASE_DELAY_MS * (MAX_RETRIES - retries + 1);
@@ -61,12 +63,17 @@ async function fetchWithRetry(
   }
 }
 
+function normalizeName(name: string): string {
+  return name.trim().toLowerCase();
+}
+
 export function RSVPForm() {
   const [formData, setFormData] = useState<RSVPFormData>({
     name: '',
     phone: '',
     email: '',
     numberOfGuests: 1,
+    guestNames: [],
     dietaryRestrictions: '',
   });
 
@@ -75,17 +82,36 @@ export function RSVPForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'unavailable'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+  const [cerimonialistWhatsapp, setCerimonialistWhatsapp] = useState('');
+  const nameHasError = Boolean(touched.name && errors.name);
+  const phoneHasError = Boolean(touched.phone && errors.phone);
+  const emailHasError = Boolean(touched.email && errors.email);
+  const numberOfGuestsHasError = Boolean(touched.numberOfGuests && errors.numberOfGuests);
+  const guestNamesHasError = Boolean(touched.guestNames && errors.guestNames);
+  const dietaryRestrictionsHasError = Boolean(touched.dietaryRestrictions && errors.dietaryRestrictions);
 
-  // Handle input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === 'numberOfGuests' ? parseInt(value) || 0 : value,
-    }));
 
-    // Clear error when user starts typing
+    setFormData((prev) => {
+      if (name === 'numberOfGuests') {
+        const numberOfGuests = parseInt(value) || 0;
+        const guestCount = Math.max(0, numberOfGuests - 1);
+
+        return {
+          ...prev,
+          numberOfGuests,
+          guestNames: Array.from({ length: guestCount }, (_, index) => prev.guestNames[index] || ''),
+        };
+      }
+
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({
         ...prev,
@@ -94,13 +120,27 @@ export function RSVPForm() {
     }
   };
 
-  // Handle field blur for validation
+  const handleGuestNameChange = (index: number, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      guestNames: prev.guestNames.map((guestName, currentIndex) =>
+        currentIndex === index ? value : guestName
+      ),
+    }));
+
+    if (errors.guestNames) {
+      setErrors((prev) => ({
+        ...prev,
+        guestNames: undefined,
+      }));
+    }
+  };
+
   const handleBlur = (field: keyof RSVPFormData) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     validateField(field);
   };
 
-  // Validate individual field
   const validateField = (field: keyof RSVPFormData) => {
     let error: string | undefined;
 
@@ -127,6 +167,25 @@ export function RSVPForm() {
           error = 'O número máximo de convidados é 10';
         }
         break;
+      case 'guestNames': {
+        const expectedGuests = Math.max(0, formData.numberOfGuests - 1);
+        const normalizedNames = [
+          normalizeName(formData.name),
+          ...formData.guestNames.map((guestName) => normalizeName(guestName)).filter(Boolean),
+        ];
+        const uniqueNames = new Set(normalizedNames);
+
+        if (formData.guestNames.length !== expectedGuests) {
+          error = expectedGuests === 0
+            ? 'Remova os acompanhantes extras para continuar'
+            : `Informe os nomes dos ${expectedGuests} acompanhantes`;
+        } else if (formData.guestNames.some((guestName) => !validateRequired(guestName))) {
+          error = 'Preencha todos os nomes dos acompanhantes';
+        } else if (uniqueNames.size !== normalizedNames.length) {
+          error = 'Os nomes informados não podem se repetir';
+        }
+        break;
+      }
       case 'dietaryRestrictions':
         if (formData.dietaryRestrictions && formData.dietaryRestrictions.length > 500) {
           error = 'Restrições alimentares devem ter no máximo 500 caracteres';
@@ -142,9 +201,8 @@ export function RSVPForm() {
     return !error;
   };
 
-  // Validate all fields
   const validateForm = (): boolean => {
-    const fields: (keyof RSVPFormData)[] = ['name', 'phone', 'email', 'numberOfGuests'];
+    const fields: (keyof RSVPFormData)[] = ['name', 'phone', 'email', 'numberOfGuests', 'guestNames'];
     let isValid = true;
 
     fields.forEach((field) => {
@@ -154,27 +212,26 @@ export function RSVPForm() {
       }
     });
 
-    // Mark all fields as touched
     setTouched({
       name: true,
       phone: true,
       email: true,
       numberOfGuests: true,
+      guestNames: true,
       dietaryRestrictions: true,
     });
 
     return isValid;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // Reset submit status
+
     setSubmitStatus('idle');
     setSubmitMessage('');
+    setContactMessage('');
+    setCerimonialistWhatsapp('');
 
-    // Validate form
     if (!validateForm()) {
       return;
     }
@@ -193,7 +250,6 @@ export function RSVPForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle validation errors from server
         if (data.validationErrors) {
           setErrors(data.validationErrors);
           setSubmitStatus('error');
@@ -206,16 +262,17 @@ export function RSVPForm() {
           setSubmitMessage(getErrorMessage(response.status, data.error));
         }
       } else {
-        // Success
         setSubmitStatus('success');
         setSubmitMessage('Presença confirmada com sucesso! Obrigado!');
+        setContactMessage(data.data?.contactMessage || '');
+        setCerimonialistWhatsapp(data.data?.cerimonialistWhatsapp || '');
 
-        // Reset form
         setFormData({
           name: '',
           phone: '',
           email: '',
           numberOfGuests: 1,
+          guestNames: [],
           dietaryRestrictions: '',
         });
         setErrors({});
@@ -232,7 +289,6 @@ export function RSVPForm() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6 px-4 sm:px-0" noValidate>
-      {/* Name Field */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
           Nome Completo <span className="text-red-600" aria-label="obrigatório">*</span>
@@ -248,9 +304,9 @@ export function RSVPForm() {
             touched.name && errors.name ? 'border-red-600' : 'border-gray-300'
           }`}
           aria-required="true"
-          aria-invalid={touched.name && !!errors.name}
           aria-describedby={touched.name && errors.name ? 'name-error' : undefined}
           disabled={isSubmitting}
+          {...(nameHasError ? { 'aria-invalid': 'true' } : {})}
         />
         {touched.name && errors.name && (
           <p id="name-error" className="mt-1 text-sm text-red-600" role="alert">
@@ -259,7 +315,6 @@ export function RSVPForm() {
         )}
       </div>
 
-      {/* Phone Field */}
       <div>
         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
           Telefone <span className="text-red-600" aria-label="obrigatório">*</span>
@@ -276,9 +331,9 @@ export function RSVPForm() {
             touched.phone && errors.phone ? 'border-red-600' : 'border-gray-300'
           }`}
           aria-required="true"
-          aria-invalid={touched.phone && !!errors.phone}
           aria-describedby={touched.phone && errors.phone ? 'phone-error' : undefined}
           disabled={isSubmitting}
+          {...(phoneHasError ? { 'aria-invalid': 'true' } : {})}
         />
         {touched.phone && errors.phone && (
           <p id="phone-error" className="mt-1 text-sm text-red-600" role="alert">
@@ -287,7 +342,6 @@ export function RSVPForm() {
         )}
       </div>
 
-      {/* Email Field */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
           E-mail <span className="text-red-600" aria-label="obrigatório">*</span>
@@ -304,9 +358,9 @@ export function RSVPForm() {
             touched.email && errors.email ? 'border-red-600' : 'border-gray-300'
           }`}
           aria-required="true"
-          aria-invalid={touched.email && !!errors.email}
           aria-describedby={touched.email && errors.email ? 'email-error' : undefined}
           disabled={isSubmitting}
+          {...(emailHasError ? { 'aria-invalid': 'true' } : {})}
         />
         {touched.email && errors.email && (
           <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
@@ -315,7 +369,6 @@ export function RSVPForm() {
         )}
       </div>
 
-      {/* Number of Guests Field */}
       <div>
         <label htmlFor="numberOfGuests" className="block text-sm font-medium text-gray-700 mb-2">
           Número de Convidados <span className="text-red-600" aria-label="obrigatório">*</span>
@@ -333,9 +386,9 @@ export function RSVPForm() {
             touched.numberOfGuests && errors.numberOfGuests ? 'border-red-600' : 'border-gray-300'
           }`}
           aria-required="true"
-          aria-invalid={touched.numberOfGuests && !!errors.numberOfGuests}
           aria-describedby={touched.numberOfGuests && errors.numberOfGuests ? 'numberOfGuests-error' : undefined}
           disabled={isSubmitting}
+          {...(numberOfGuestsHasError ? { 'aria-invalid': 'true' } : {})}
         />
         {touched.numberOfGuests && errors.numberOfGuests && (
           <p id="numberOfGuests-error" className="mt-1 text-sm text-red-600" role="alert">
@@ -344,7 +397,41 @@ export function RSVPForm() {
         )}
       </div>
 
-      {/* Dietary Restrictions Field */}
+      {formData.numberOfGuests > 1 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Nomes dos Acompanhantes <span className="text-red-600" aria-label="obrigatório">*</span>
+          </label>
+          <div className="space-y-3">
+            {formData.guestNames.map((guestName, index) => (
+              <input
+                key={`guest-${index}`}
+                type="text"
+                value={guestName}
+                onChange={(e) => handleGuestNameChange(index, e.target.value)}
+                onBlur={() => handleBlur('guestNames')}
+                placeholder={`Nome do acompanhante ${index + 1}`}
+                className={`w-full px-4 py-3 min-h-[44px] border rounded-md focus:ring-2 focus:ring-wedding-primary focus:border-transparent transition-colors text-base ${
+                  touched.guestNames && errors.guestNames ? 'border-red-600' : 'border-gray-300'
+                }`}
+                aria-required="true"
+                aria-describedby={touched.guestNames && errors.guestNames ? 'guestNames-error' : undefined}
+                disabled={isSubmitting}
+                {...(guestNamesHasError ? { 'aria-invalid': 'true' } : {})}
+              />
+            ))}
+          </div>
+          {touched.guestNames && errors.guestNames && (
+            <p id="guestNames-error" className="mt-1 text-sm text-red-600" role="alert">
+              {errors.guestNames}
+            </p>
+          )}
+          <p className="mt-1 text-sm text-gray-500">
+            Informe {formData.numberOfGuests - 1} acompanhante(s). Seu nome principal já conta no total.
+          </p>
+        </div>
+      )}
+
       <div>
         <label htmlFor="dietaryRestrictions" className="block text-sm font-medium text-gray-700 mb-2">
           Restrições Alimentares <span className="text-sm text-gray-500">(opcional)</span>
@@ -361,9 +448,9 @@ export function RSVPForm() {
           className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-wedding-primary focus:border-transparent transition-colors resize-none text-base ${
             touched.dietaryRestrictions && errors.dietaryRestrictions ? 'border-red-600' : 'border-gray-300'
           }`}
-          aria-invalid={touched.dietaryRestrictions && !!errors.dietaryRestrictions}
           aria-describedby={touched.dietaryRestrictions && errors.dietaryRestrictions ? 'dietaryRestrictions-error' : undefined}
           disabled={isSubmitting}
+          {...(dietaryRestrictionsHasError ? { 'aria-invalid': 'true' } : {})}
         />
         {touched.dietaryRestrictions && errors.dietaryRestrictions && (
           <p id="dietaryRestrictions-error" className="mt-1 text-sm text-red-600" role="alert">
@@ -375,10 +462,19 @@ export function RSVPForm() {
         </p>
       </div>
 
-      {/* Submit Status Messages */}
       {submitStatus === 'success' && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg" role="alert">
           <p className="text-green-800 font-medium">{submitMessage}</p>
+          {contactMessage && (
+            <>
+              <p className="mt-3 text-sm text-green-900">
+                Mensagem preparada para o cerimonialista {cerimonialistWhatsapp}:
+              </p>
+              <pre className="mt-2 whitespace-pre-wrap rounded-md bg-white/80 p-3 text-sm text-green-950 border border-green-200">
+                {contactMessage}
+              </pre>
+            </>
+          )}
         </div>
       )}
 
@@ -392,7 +488,7 @@ export function RSVPForm() {
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg" role="alert">
           <p className="text-amber-800 font-medium">{submitMessage}</p>
           <p className="text-amber-700 text-sm mt-2">
-            Se o problema persistir, entre em contato pelo e-mail{' '}
+            Se o problema persistir, entre em contato pelo WhatsApp +55 16 99265-1351 ou pelo e-mail{' '}
             <a
               href="mailto:contato@casamento-andressa-eduardo.com"
               className="underline hover:text-amber-900"
@@ -403,7 +499,6 @@ export function RSVPForm() {
         </div>
       )}
 
-      {/* Submit Button - Minimum 44x44px touch target */}
       <div>
         <AnimatedButton
           type="submit"
