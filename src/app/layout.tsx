@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from 'next/font/google';
 import "./globals.css";
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -7,20 +6,6 @@ import { ClientLayout } from '@/components/ClientLayout';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { siteUrl } from '@/lib/config';
-
-const playfairDisplay = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-serif',
-  display: 'swap',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-sans',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -75,7 +60,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${playfairDisplay.variable} ${inter.variable}`}>
+    <html lang="pt-BR">
       <body className="antialiased flex flex-col min-h-screen">
         <Navbar />
         <main className="grow">

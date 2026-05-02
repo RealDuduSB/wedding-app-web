@@ -4,70 +4,104 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
 
-// Mock next/navigation
 jest.mock('next/navigation', () => ({
   usePathname: jest.fn(() => '/'),
   useRouter: jest.fn(() => ({ push: jest.fn(), replace: jest.fn() })),
 }));
 
-// Mock next/link to render a plain <a>
 jest.mock('next/link', () => {
-  const MockLink = ({ href, children, ...rest }: { href: string; children: React.ReactNode; [key: string]: unknown }) => (
+  const MockLink = ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
     <a href={href} {...rest}>
       {children}
     </a>
   );
+
   MockLink.displayName = 'MockLink';
+
   return MockLink;
 });
 
-// Mock framer-motion to avoid animation complexity in tests
 jest.mock('framer-motion', () => {
-  const React = require('react');
+  const MotionButton = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithRef<'button'>>(
+    function MotionButton({ children, ...props }, ref) {
+      return (
+        <button ref={ref} {...props}>
+          {children}
+        </button>
+      );
+    }
+  );
+
+  const MotionDiv = function MotionDiv({ children, ...props }: React.ComponentPropsWithRef<'div'>) {
+    return <div {...props}>{children}</div>;
+  };
+
+  const MotionLink = function MotionLink({ children, ...props }: React.ComponentPropsWithRef<'a'>) {
+    return <a {...props}>{children}</a>;
+  };
+
+  MotionDiv.displayName = 'MotionDiv';
+  MotionLink.displayName = 'MotionLink';
+
   return {
     motion: {
-      button: React.forwardRef(({ children, whileHover, whileTap, transition, ...props }: React.ComponentPropsWithRef<'button'> & { whileHover?: unknown; whileTap?: unknown; transition?: unknown }, ref: React.Ref<HTMLButtonElement>) =>
-        <button ref={ref} {...props}>{children}</button>
-      ),
-      div: ({ children, initial, animate, exit, transition, ...props }: React.ComponentPropsWithRef<'div'> & { initial?: unknown; animate?: unknown; exit?: unknown; transition?: unknown }) =>
-        <div {...props}>{children}</div>,
-      a: ({ children, whileHover, whileTap, transition, ...props }: React.ComponentPropsWithRef<'a'> & { whileHover?: unknown; whileTap?: unknown; transition?: unknown }) =>
-        <a {...props}>{children}</a>,
+      button: MotionButton,
+      div: MotionDiv,
+      a: MotionLink,
     },
     AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   };
 });
 
-// Mock @react-google-maps/api
 jest.mock('@react-google-maps/api', () => ({
-  GoogleMap: ({ children }: { children?: React.ReactNode }) => <div data-testid="google-map">{children}</div>,
+  GoogleMap: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="google-map">{children}</div>
+  ),
   LoadScript: ({ children, onError }: { children: React.ReactNode; onError?: () => void }) => {
-    // Simulate error to trigger fallback
-    React.useEffect(() => { onError?.(); }, [onError]);
+    React.useEffect(() => {
+      onError?.();
+    }, [onError]);
+
     return <>{children}</>;
   },
   Marker: () => <div data-testid="map-marker" />,
 }));
 
-// Mock useReducedMotion
 jest.mock('@/hooks/useReducedMotion', () => ({
   useReducedMotion: () => false,
 }));
 
-// Mock next/image
 jest.mock('next/image', () => {
-  const MockImage = ({ src, alt, ...rest }: { src: string; alt: string; [key: string]: unknown }) => (
+  const MockImage = ({
+    src,
+    alt,
+    ...rest
+  }: {
+    src: string;
+    alt: string;
+    [key: string]: unknown;
+  }) => (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} {...rest} />
   );
+
   MockImage.displayName = 'MockImage';
+
   return MockImage;
 });
 
@@ -80,9 +114,9 @@ import { MapComponent } from '@/components/MapComponent';
 import { GiftCard } from '@/components/GiftCard';
 
 // ---------------------------------------------------------------------------
-// 1. RSVP Form – full submission flow
+// 1. RSVP Form - full submission flow
 // ---------------------------------------------------------------------------
-describe('RSVP Form – full submission flow', () => {
+describe('RSVP Form - full submission flow', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
   });
@@ -145,9 +179,9 @@ describe('RSVP Form – full submission flow', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /confirmar presença/i }));
 
-    expect(
-      await screen.findByText(/ocorreu um erro ao processar sua solicitação/i)
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/erro ao processar/i);
+    }, { timeout: 5000 });
   });
 
   it('resets form after successful submission', async () => {
@@ -175,15 +209,14 @@ describe('RSVP Form – full submission flow', () => {
 
     await screen.findByText(/presença confirmada com sucesso/i);
 
-    // Form should be reset
     expect(nameInput).toHaveValue('');
   });
 });
 
 // ---------------------------------------------------------------------------
-// 2. Navigation – all nav links render with correct hrefs
+// 2. Navigation - all nav links render with correct hrefs
 // ---------------------------------------------------------------------------
-describe('Navigation – all nav links render correctly', () => {
+describe('Navigation - all nav links render correctly', () => {
   const expectedLinks = [
     { label: 'Home', href: '/' },
     { label: 'Nossa História', href: '/nossa-historia' },
@@ -195,8 +228,7 @@ describe('Navigation – all nav links render correctly', () => {
 
   it('renders all navigation links in desktop nav', () => {
     render(<Navbar />);
-    // Desktop nav links are inside the hidden md:flex container
-    // All links (desktop + mobile) should be present in the DOM
+
     expectedLinks.forEach(({ label, href }) => {
       const links = screen.getAllByRole('link', { name: new RegExp(label, 'i') });
       expect(links.length).toBeGreaterThanOrEqual(1);
@@ -212,15 +244,14 @@ describe('Navigation – all nav links render correctly', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 3. Mobile menu – hamburger toggle opens/closes nav
+// 3. Mobile menu - hamburger toggle opens/closes nav
 // ---------------------------------------------------------------------------
-describe('Mobile menu – hamburger toggle', () => {
+describe('Mobile menu - hamburger toggle', () => {
   it('opens mobile menu when hamburger button is clicked', async () => {
     render(<Navbar />);
     const toggleBtn = screen.getByRole('button', { name: /abrir menu de navegação/i });
     await userEvent.click(toggleBtn);
 
-    // After opening, the button label changes
     expect(screen.getByRole('button', { name: /fechar menu de navegação/i })).toBeInTheDocument();
   });
 
@@ -240,10 +271,8 @@ describe('Mobile menu – hamburger toggle', () => {
     const toggleBtn = screen.getByRole('button', { name: /abrir menu de navegação/i });
     await userEvent.click(toggleBtn);
 
-    // Menu is open
     expect(screen.getByRole('button', { name: /fechar menu de navegação/i })).toBeInTheDocument();
 
-    // Press Escape
     fireEvent.keyDown(screen.getByRole('navigation'), { key: 'Escape' });
 
     await waitFor(() => {
@@ -253,9 +282,9 @@ describe('Mobile menu – hamburger toggle', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 4. Map component – renders fallback address when API key is missing
+// 4. Map component - renders fallback address when API key is missing
 // ---------------------------------------------------------------------------
-describe('MapComponent – fallback when API unavailable', () => {
+describe('MapComponent - fallback when API unavailable', () => {
   const mapProps = {
     latitude: -23.5505,
     longitude: -46.6333,
@@ -264,7 +293,6 @@ describe('MapComponent – fallback when API unavailable', () => {
   };
 
   it('renders fallback address when no API key is set', () => {
-    // NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set in test env
     render(<MapComponent {...mapProps} />);
     expect(screen.getByText(mapProps.address)).toBeInTheDocument();
   });
@@ -283,9 +311,9 @@ describe('MapComponent – fallback when API unavailable', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 5. Gift registry – cards render with correct external links
+// 5. Gift registry - cards render with correct external links
 // ---------------------------------------------------------------------------
-describe('Gift registry – GiftCard external links', () => {
+describe('Gift registry - GiftCard external links', () => {
   const registries = [
     {
       storeName: 'Magazine Luiza',
@@ -322,8 +350,8 @@ describe('Gift registry – GiftCard external links', () => {
   it('renders both gift registry cards on the page', () => {
     const { container } = render(
       <div>
-        {registries.map((r) => (
-          <GiftCard key={r.storeName} {...r} />
+        {registries.map((registry) => (
+          <GiftCard key={registry.storeName} {...registry} />
         ))}
       </div>
     );

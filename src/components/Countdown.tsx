@@ -38,7 +38,7 @@ function CountdownComponent({ targetDate, className = '' }: CountdownProps) {
           <p className="text-xs sm:text-sm font-medium text-wedding-sky">Contagem Regressiva</p>
         </div>
         <div className="flex justify-center items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8">
-          {timeUnits.map((unit, index) => (
+          {timeUnits.map((unit) => (
             <div key={unit.label} className="flex flex-col items-center min-w-15 sm:min-w-17.5">
               <motion.div
                 key={unit.value}

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * Icon generation script for PWA icons.
  * 
@@ -58,7 +59,7 @@ async function generateIcons() {
     console.log('✓ Generated public/icon-512.png');
 
     console.log('\nIcons generated successfully!');
-  } catch (e) {
+  } catch {
     console.log('sharp not available. Creating SVG placeholder icons instead.');
     console.log('For production, replace public/icon-192.png and public/icon-512.png with real PNG files.\n');
 

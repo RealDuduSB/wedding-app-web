@@ -7,18 +7,16 @@ import { useEffect, useState } from 'react';
  * Respects the prefers-reduced-motion media query
  */
 export function useReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useEffect(() => {
-    // Check if window is available (client-side only)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
     if (typeof window === 'undefined') {
-      return;
+      return false;
     }
 
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    
-    // Set initial value
-    setPrefersReducedMotion(mediaQuery.matches);
 
     // Listen for changes
     const handleChange = (event: MediaQueryListEvent) => {

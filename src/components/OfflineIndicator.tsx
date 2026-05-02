@@ -3,21 +3,27 @@
 import { useState, useEffect } from 'react';
 
 export function OfflineIndicator() {
-  const [isOnline, setIsOnline] = useState(true);
-  const [showBanner, setShowBanner] = useState(false);
+  const [isOnline, setIsOnline] = useState(() => (
+    typeof navigator === 'undefined' ? true : navigator.onLine
+  ));
+  const [showBanner, setShowBanner] = useState(() => (
+    typeof navigator === 'undefined' ? false : !navigator.onLine
+  ));
 
   useEffect(() => {
-    // Set initial state from navigator
-    setIsOnline(navigator.onLine);
-    setShowBanner(!navigator.onLine);
+    let hideBannerTimeout: ReturnType<typeof setTimeout> | undefined;
 
     const handleOnline = () => {
       setIsOnline(true);
       // Briefly show "back online" state then hide
-      setTimeout(() => setShowBanner(false), 2000);
+      setShowBanner(true);
+      hideBannerTimeout = setTimeout(() => setShowBanner(false), 2000);
     };
 
     const handleOffline = () => {
+      if (hideBannerTimeout) {
+        clearTimeout(hideBannerTimeout);
+      }
       setIsOnline(false);
       setShowBanner(true);
     };
@@ -26,6 +32,9 @@ export function OfflineIndicator() {
     window.addEventListener('offline', handleOffline);
 
     return () => {
+      if (hideBannerTimeout) {
+        clearTimeout(hideBannerTimeout);
+      }
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };

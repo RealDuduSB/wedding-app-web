@@ -11,6 +11,8 @@ export function ImageGrid({ images, columns = { mobile: 1, tablet: 2, desktop: 3
   const shouldReduceMotion = useReducedMotion();
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [errorImages, setErrorImages] = useState<Set<string>>(new Set());
+  const tabletColumnsClass = columns.tablet === 1 ? 'md:grid-cols-1' : columns.tablet === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2';
+  const desktopColumnsClass = columns.desktop === 1 ? 'lg:grid-cols-1' : columns.desktop === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
 
   const handleImageLoad = (imageId: string) => {
     setLoadedImages((prev) => new Set(prev).add(imageId));
@@ -57,7 +59,7 @@ export function ImageGrid({ images, columns = { mobile: 1, tablet: 2, desktop: 3
 
   return (
     <motion.div 
-      className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+      className={`grid gap-3 sm:gap-4 grid-cols-1 ${tabletColumnsClass} ${desktopColumnsClass}`}
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"

@@ -19,16 +19,18 @@ interface UseInstallPromptResult {
 
 export function useInstallPrompt(): UseInstallPromptResult {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true)
+    );
+  });
 
   useEffect(() => {
-    // Check if already running as installed PWA
-    const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true);
-
-    setIsInstalled(isStandalone);
-
     const handleBeforeInstallPrompt = (e: Event) => {
       // Prevent the default mini-infobar from appearing
       e.preventDefault();
