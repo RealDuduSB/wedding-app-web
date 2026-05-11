@@ -8,13 +8,15 @@ import {
   validateRequired,
   validatePositiveInteger,
 } from '@/lib/validation';
+import { buildContactMessage } from '@/lib/contact-message';
+import { ceremonialistName, ceremonialistWhatsapp } from '@/lib/config';
 import { AnimatedButton } from './AnimatedButton';
 
 const MAX_RETRIES = 2;
 const RETRY_BASE_DELAY_MS = 1000;
 
 function isTransientError(status: number): boolean {
-  return status >= 500 && status !== 501 && status !== 505;
+  return status >= 500 && status !== 501 && status !== 503 && status !== 505;
 }
 
 function getErrorMessage(status: number, serverMessage?: string): string {
@@ -67,6 +69,34 @@ function normalizeName(name: string): string {
   return name.trim().toLowerCase();
 }
 
+export function legacyBuildContactMessage(data: RSVPFormData): string {
+  const confirmedGuests = [data.name, ...data.guestNames].join(' · ');
+  const dietaryRestrictions = data.dietaryRestrictions?.trim()
+    ? data.dietaryRestrictions.trim()
+    : 'Nenhuma informada';
+
+  return [
+    'Olá Danilo! Tudo bem?',
+    '',
+    'Passando para confirmar nossa presença no casamento de Andressa e Eduardo. Seguem os dados:',
+    '',
+    `Convidados confirmados: ${confirmedGuests} (${data.numberOfGuests} ${data.numberOfGuests === 1 ? 'pessoa' : 'pessoas'})`,
+    `WhatsApp para contato: ${data.phone}`,
+    `E-mail: ${data.email}`,
+    `Restrições alimentares: ${dietaryRestrictions}`,
+    '',
+    `Caso precise de qualquer informação, fico à disposição pelo número acima. Obrigado e até breve!`,
+    '',
+    `Cerimonialista: Danilo Andrade`,
+  ].join('\n');
+}
+
+function buildWhatsAppUrl(phone: string, message: string): string {
+  const normalizedPhone = phone.replace(/\D/g, '');
+  const encodedMessage = encodeURIComponent(message);
+  return `https://wa.me/${normalizedPhone}?text=${encodedMessage}`;
+}
+
 export function RSVPForm() {
   const [formData, setFormData] = useState<RSVPFormData>({
     name: '',
@@ -83,13 +113,19 @@ export function RSVPForm() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'unavailable'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
   const [contactMessage, setContactMessage] = useState('');
-  const [cerimonialistWhatsapp, setCerimonialistWhatsapp] = useState('');
+  const [cerimonialistWhatsapp, setCerimonialistWhatsapp] = useState(ceremonialistWhatsapp);
   const nameHasError = Boolean(touched.name && errors.name);
   const phoneHasError = Boolean(touched.phone && errors.phone);
   const emailHasError = Boolean(touched.email && errors.email);
   const numberOfGuestsHasError = Boolean(touched.numberOfGuests && errors.numberOfGuests);
   const guestNamesHasError = Boolean(touched.guestNames && errors.guestNames);
   const dietaryRestrictionsHasError = Boolean(touched.dietaryRestrictions && errors.dietaryRestrictions);
+  const whatsappMessage = contactMessage || buildContactMessage(formData, ceremonialistName, ceremonialistWhatsapp);
+
+  const openWhatsAppChat = (phone: string, message: string) => {
+    const whatsappUrl = buildWhatsAppUrl(phone, message);
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -230,7 +266,7 @@ export function RSVPForm() {
     setSubmitStatus('idle');
     setSubmitMessage('');
     setContactMessage('');
-    setCerimonialistWhatsapp('');
+    setCerimonialistWhatsapp(ceremonialistWhatsapp);
 
     if (!validateForm()) {
       return;
@@ -239,7 +275,7 @@ export function RSVPForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetchWithRetry('/api/rsvp', {
+      const response = await fetchWithRetry('/api/convidados', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -255,8 +291,12 @@ export function RSVPForm() {
           setSubmitStatus('error');
           setSubmitMessage('Por favor, corrija os erros no formulário');
         } else if (response.status === 503) {
+          const messageToSend = buildContactMessage(formData, ceremonialistName, ceremonialistWhatsapp);
           setSubmitStatus('unavailable');
           setSubmitMessage(getErrorMessage(response.status, data.error));
+          setContactMessage(messageToSend);
+          setCerimonialistWhatsapp(cerimonialistWhatsapp);
+          openWhatsAppChat(ceremonialistWhatsapp, messageToSend);
         } else {
           setSubmitStatus('error');
           setSubmitMessage(getErrorMessage(response.status, data.error));
@@ -264,8 +304,11 @@ export function RSVPForm() {
       } else {
         setSubmitStatus('success');
         setSubmitMessage('Presença confirmada com sucesso! Obrigado!');
-        setContactMessage(data.data?.contactMessage || '');
-        setCerimonialistWhatsapp(data.data?.cerimonialistWhatsapp || '');
+        const messageToSend = data.data?.contactMessage || buildContactMessage(formData, ceremonialistName, ceremonialistWhatsapp);
+        const destinationPhone = data.data?.cerimonialistWhatsapp || ceremonialistWhatsapp;
+        setContactMessage(messageToSend);
+        setCerimonialistWhatsapp(destinationPhone);
+        openWhatsAppChat(destinationPhone, messageToSend);
 
         setFormData({
           name: '',
@@ -473,6 +516,13 @@ export function RSVPForm() {
               <pre className="mt-2 whitespace-pre-wrap rounded-md bg-white/80 p-3 text-sm text-green-950 border border-green-200">
                 {contactMessage}
               </pre>
+              <button
+                type="button"
+                onClick={() => openWhatsAppChat(cerimonialistWhatsapp, contactMessage)}
+                className="mt-3 inline-flex min-h-11 items-center justify-center rounded-md bg-green-700 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+              >
+                Enviar pelo WhatsApp
+              </button>
             </>
           )}
         </div>
@@ -488,7 +538,7 @@ export function RSVPForm() {
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg" role="alert">
           <p className="text-amber-800 font-medium">{submitMessage}</p>
           <p className="text-amber-700 text-sm mt-2">
-            Se o problema persistir, entre em contato pelo WhatsApp +55 16 99265-1351 ou pelo e-mail{' '}
+            VocÃª pode enviar sua confirmaÃ§Ã£o diretamente pelo WhatsApp {cerimonialistWhatsapp} ou pelo e-mail{' '}
             <a
               href="mailto:contato@casamento-andressa-eduardo.com"
               className="underline hover:text-amber-900"
@@ -496,6 +546,13 @@ export function RSVPForm() {
               contato@casamento-andressa-eduardo.com
             </a>
           </p>
+          <button
+            type="button"
+            onClick={() => openWhatsAppChat(cerimonialistWhatsapp, contactMessage || whatsappMessage)}
+            className="mt-3 inline-flex min-h-11 items-center justify-center rounded-md bg-amber-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+          >
+            Abrir no WhatsApp
+          </button>
         </div>
       )}
 

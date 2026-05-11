@@ -8,9 +8,10 @@ import { AnimatedButton } from './AnimatedButton';
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/nossa-historia', label: 'Nossa História' },
-  { href: '/cerimonia', label: 'Cerimônia' },
-  { href: '/confirmar-presenca', label: 'Confirmar Presença' },
+  { href: '/nossa-historia', label: 'Nossa Historia' },
+  { href: '/cerimonia', label: 'Cerimonia' },
+  { href: '/confirmar-presenca', label: 'Confirmar Presenca' },
+  { href: '/convidados', label: 'Convidados' },
   { href: '/lista-de-presentes', label: 'Lista de Presentes' },
   { href: '/galeria', label: 'Galeria' },
 ];
@@ -30,14 +31,12 @@ export function Navbar() {
     menuButtonRef.current?.focus();
   };
 
-  // Close menu on Escape key
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Escape' && isMobileMenuOpen) {
       closeMobileMenu();
     }
   };
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -49,6 +48,7 @@ export function Navbar() {
         setIsMobileMenuOpen(false);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobileMenuOpen]);
@@ -62,16 +62,14 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo/Brand */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="text-xl font-serif font-semibold text-white hover:text-wedding-sky transition-colors focus:outline-none focus:ring-2 focus:ring-wedding-sky focus:ring-offset-2 focus:ring-offset-wedding-primary rounded"
             aria-label="Home - Andressa & Eduardo"
           >
             A & E
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex md:space-x-4 lg:space-x-6">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
@@ -90,13 +88,12 @@ export function Navbar() {
             })}
           </div>
 
-          {/* Mobile Menu Button - Minimum 44x44px touch target */}
           <AnimatedButton
             ref={menuButtonRef}
             onClick={toggleMobileMenu}
             className="md:hidden p-3 min-w-11 min-h-11 rounded-md hover:bg-wedding-primary-light focus:outline-none focus:ring-2 focus:ring-wedding-sky transition-colors flex items-center justify-center"
             aria-expanded={isMobileMenuOpen}
-            aria-label={isMobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+            aria-label={isMobileMenuOpen ? 'Fechar menu de navegacao' : 'Abrir menu de navegacao'}
             aria-controls="mobile-menu"
           >
             <svg
@@ -119,7 +116,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div

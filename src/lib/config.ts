@@ -1,5 +1,10 @@
 import { WeddingConfig } from '@/types';
 
+export const ceremonialistWhatsapp =
+  process.env.NEXT_PUBLIC_CEREMONIALIST_WHATSAPP || '+55 16 98130-8825';
+export const ceremonialistName =
+  process.env.NEXT_PUBLIC_CEREMONIALIST_NAME || 'Danilo';
+
 export const weddingConfig: WeddingConfig = {
   coupleNames: {
     bride: 'Andressa',
