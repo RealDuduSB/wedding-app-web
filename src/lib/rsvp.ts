@@ -116,7 +116,7 @@ export async function createRSVPSubmission(rsvpData: RSVPFormData): Promise<RSVP
   }
 
   if (!isDbConfigured || !sql) {
-    const contactMessage = buildContactMessage(rsvpData, ceremonialistName, CERIMONIALIST_WHATSAPP);
+    const contactMessage = buildContactMessage(rsvpData, ceremonialistName);
 
     return {
       id: 'fallback-whatsapp',
@@ -165,7 +165,7 @@ export async function createRSVPSubmission(rsvpData: RSVPFormData): Promise<RSVP
     throw error;
   }
 
-  const contactMessage = buildContactMessage(rsvpData, ceremonialistName, CERIMONIALIST_WHATSAPP);
+  const contactMessage = buildContactMessage(rsvpData, ceremonialistName);
 
   const rows = await sql`
     INSERT INTO rsvp_submissions (

@@ -29,27 +29,25 @@ export function formatPhoneForDisplay(phone: string): string {
 
 export function buildContactMessage(
   data: RSVPFormData,
-  ceremonialistName: string,
-  ceremonialistWhatsapp: string
+  ceremonialistName: string
 ): string {
   const confirmedGuests = [data.name, ...data.guestNames].join(' \u00B7 ');
   const dietaryRestrictions = data.dietaryRestrictions?.trim()
     ? data.dietaryRestrictions.trim()
     : 'Nenhuma informada';
-  const formattedContactPhone = formatPhoneForDisplay(data.phone);
 
   return [
-    `Ol\u00E1, ${ceremonialistName}! Tudo bem? \u{1F338}`,
+    `Ol\u00E1 ${ceremonialistName}! Tudo bem?`,
     '',
     'Passando para confirmar nossa presen\u00E7a no casamento de Andressa e Eduardo. Seguem os dados:',
     '',
-    `\u{1F465} Convidados confirmados: ${confirmedGuests} (${data.numberOfGuests} ${data.numberOfGuests === 1 ? 'pessoa' : 'pessoas'})`,
-    `\u{1F4F1} WhatsApp para contato: ${formattedContactPhone}`,
-    `\u{1F4E7} E-mail: ${data.email}`,
-    `\u26A0\uFE0F Restri\u00E7\u00F5es alimentares: ${dietaryRestrictions}`,
+    `Convidados confirmados: ${confirmedGuests} (${data.numberOfGuests} ${data.numberOfGuests === 1 ? 'pessoa' : 'pessoas'})`,
+    `WhatsApp para contato: ${data.phone}`,
+    `E-mail: ${data.email}`,
+    `Restri\u00E7\u00F5es alimentares: ${dietaryRestrictions}`,
     '',
-    'Qualquer d\u00FAvida, pode entrar em contato pelo n\u00FAmero acima. Obrigado e at\u00E9 breve! \u{1F48D}',
+    'Caso precise de qualquer informa\u00E7\u00E3o, fico \u00E0 disposi\u00E7\u00E3o pelo n\u00FAmero acima. Obrigado e at\u00E9 breve!',
     '',
-    `Cerimonialista: ${ceremonialistWhatsapp}`,
+    `Cerimonialista: ${ceremonialistName}`,
   ].join('\n');
 }

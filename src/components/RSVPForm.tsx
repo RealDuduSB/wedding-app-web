@@ -101,6 +101,11 @@ function buildWhatsAppUrl(phone: string, message: string): string {
   return `https://wa.me/${normalizedPhone}?text=${encodedMessage}`;
 }
 
+function redirectToWhatsApp(phone: string, message: string): void {
+  const whatsappUrl = buildWhatsAppUrl(phone, message);
+  window.location.assign(whatsappUrl);
+}
+
 export function RSVPForm() {
   const [formData, setFormData] = useState<RSVPFormData>({
     name: '',
@@ -124,7 +129,7 @@ export function RSVPForm() {
   const numberOfGuestsHasError = Boolean(touched.numberOfGuests && errors.numberOfGuests);
   const guestNamesHasError = Boolean(touched.guestNames && errors.guestNames);
   const dietaryRestrictionsHasError = Boolean(touched.dietaryRestrictions && errors.dietaryRestrictions);
-  const whatsappMessage = contactMessage || buildContactMessage(formData, ceremonialistName, ceremonialistWhatsapp);
+  const whatsappMessage = contactMessage || buildContactMessage(formData, ceremonialistName);
 
   const openWhatsAppChat = (phone: string, message: string) => {
     const whatsappUrl = buildWhatsAppUrl(phone, message);
@@ -295,7 +300,7 @@ export function RSVPForm() {
           setSubmitStatus('error');
           setSubmitMessage('Por favor, corrija os erros no formulário');
         } else if (response.status === 503) {
-          const messageToSend = buildContactMessage(formData, ceremonialistName, ceremonialistWhatsapp);
+          const messageToSend = buildContactMessage(formData, ceremonialistName);
           setSubmitStatus('unavailable');
           setSubmitMessage(getErrorMessage(response.status, data.error));
           setContactMessage(messageToSend);
@@ -306,7 +311,7 @@ export function RSVPForm() {
         }
       } else {
         setSubmitMessage('Presença confirmada com sucesso! Obrigado!');
-        const messageToSend = data.data?.contactMessage || buildContactMessage(formData, ceremonialistName, ceremonialistWhatsapp);
+        const messageToSend = data.data?.contactMessage || buildContactMessage(formData, ceremonialistName);
         const destinationPhone = data.data?.cerimonialistWhatsapp || ceremonialistWhatsapp;
         const isFallbackFlow = data.data?.deliveryStatus === 'fallback';
         setSubmitStatus(isFallbackFlow ? 'unavailable' : 'success');
@@ -319,6 +324,8 @@ export function RSVPForm() {
         setCerimonialistWhatsapp(destinationPhone);
         if (!isFallbackFlow) {
           openWhatsAppChat(destinationPhone, messageToSend);
+        } else {
+          redirectToWhatsApp(destinationPhone, messageToSend);
         }
 
         setFormData({
