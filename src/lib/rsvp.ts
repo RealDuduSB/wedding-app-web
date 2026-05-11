@@ -19,6 +19,7 @@ export interface RSVPApiSuccessData {
   numberOfGuests: number;
   contactMessage: string;
   cerimonialistWhatsapp: string;
+  deliveryStatus: 'saved' | 'fallback';
 }
 
 export function validateEmail(email: string): boolean {
@@ -115,9 +116,16 @@ export async function createRSVPSubmission(rsvpData: RSVPFormData): Promise<RSVP
   }
 
   if (!isDbConfigured || !sql) {
-    const error = new Error('Servico de confirmacao de presenca temporariamente indisponivel. Tente novamente mais tarde.');
-    (error as Error & { status?: number }).status = 503;
-    throw error;
+    const contactMessage = buildContactMessage(rsvpData, ceremonialistName, CERIMONIALIST_WHATSAPP);
+
+    return {
+      id: 'fallback-whatsapp',
+      name: rsvpData.name,
+      numberOfGuests: rsvpData.numberOfGuests,
+      contactMessage,
+      cerimonialistWhatsapp: CERIMONIALIST_WHATSAPP,
+      deliveryStatus: 'fallback',
+    };
   }
 
   const normalizedNames = [
@@ -189,6 +197,7 @@ export async function createRSVPSubmission(rsvpData: RSVPFormData): Promise<RSVP
     numberOfGuests: data.number_of_guests,
     contactMessage: data.contact_message,
     cerimonialistWhatsapp: CERIMONIALIST_WHATSAPP,
+    deliveryStatus: 'saved',
   };
 }
 
@@ -219,9 +228,11 @@ export async function listRSVPSubmissions(): Promise<RSVPRecord[]> {
 export function buildCreateResponse(data: RSVPApiSuccessData) {
   return NextResponse.json(
     {
-      message: 'Presenca confirmada com sucesso!',
+      message: data.deliveryStatus === 'fallback'
+        ? 'Formulario recebido. Envie a confirmacao pelo WhatsApp para concluir.'
+        : 'Presenca confirmada com sucesso!',
       data,
     },
-    { status: 201 }
+    { status: data.deliveryStatus === 'fallback' ? 200 : 201 }
   );
 }

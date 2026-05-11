@@ -32,6 +32,10 @@ function getErrorMessage(status: number, serverMessage?: string): string {
   return serverMessage || 'Erro ao enviar confirmação. Tente novamente.';
 }
 
+function getFallbackMessage(serverMessage?: string): string {
+  return serverMessage || 'Seu formulario foi recebido, mas a confirmacao precisa ser enviada pelo WhatsApp.';
+}
+
 async function fetchWithRetry(
   url: string,
   options: RequestInit,
@@ -296,19 +300,26 @@ export function RSVPForm() {
           setSubmitMessage(getErrorMessage(response.status, data.error));
           setContactMessage(messageToSend);
           setCerimonialistWhatsapp(cerimonialistWhatsapp);
-          openWhatsAppChat(ceremonialistWhatsapp, messageToSend);
         } else {
           setSubmitStatus('error');
           setSubmitMessage(getErrorMessage(response.status, data.error));
         }
       } else {
-        setSubmitStatus('success');
         setSubmitMessage('Presença confirmada com sucesso! Obrigado!');
         const messageToSend = data.data?.contactMessage || buildContactMessage(formData, ceremonialistName, ceremonialistWhatsapp);
         const destinationPhone = data.data?.cerimonialistWhatsapp || ceremonialistWhatsapp;
+        const isFallbackFlow = data.data?.deliveryStatus === 'fallback';
+        setSubmitStatus(isFallbackFlow ? 'unavailable' : 'success');
+        setSubmitMessage(
+          isFallbackFlow
+            ? getFallbackMessage(data.message)
+            : 'PresenÃ§a confirmada com sucesso! Obrigado!'
+        );
         setContactMessage(messageToSend);
         setCerimonialistWhatsapp(destinationPhone);
-        openWhatsAppChat(destinationPhone, messageToSend);
+        if (!isFallbackFlow) {
+          openWhatsAppChat(destinationPhone, messageToSend);
+        }
 
         setFormData({
           name: '',
@@ -318,8 +329,10 @@ export function RSVPForm() {
           guestNames: [],
           dietaryRestrictions: '',
         });
-        setErrors({});
-        setTouched({});
+        if (!isFallbackFlow) {
+          setErrors({});
+          setTouched({});
+        }
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -536,7 +549,9 @@ export function RSVPForm() {
 
       {submitStatus === 'unavailable' && (
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg" role="alert">
-          <p className="text-amber-800 font-medium">{submitMessage}</p>
+          <p className="text-amber-800 font-medium">
+            {submitMessage || 'Seu formulario foi recebido. Envie a confirmacao pelo WhatsApp para concluir.'}
+          </p>
           <p className="text-amber-700 text-sm mt-2">
             VocÃª pode enviar sua confirmaÃ§Ã£o diretamente pelo WhatsApp {cerimonialistWhatsapp} ou pelo e-mail{' '}
             <a
