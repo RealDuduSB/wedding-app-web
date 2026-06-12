@@ -3,7 +3,6 @@ import "./globals.css";
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ClientLayout } from '@/components/ClientLayout';
-import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { siteUrl } from '@/lib/config';
 
@@ -71,7 +70,6 @@ export default function RootLayout({
           </ErrorBoundary>
         </main>
         <Footer />
-        <OfflineIndicator />
       </body>
     </html>
   );

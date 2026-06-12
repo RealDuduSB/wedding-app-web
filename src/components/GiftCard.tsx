@@ -31,12 +31,12 @@ export function GiftCard({ storeName, storeUrl, logoUrl, description }: GiftCard
       <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
         {/* Store Logo */}
         {logoUrl && (
-          <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center">
+          <div className="relative flex h-16 w-full max-w-[180px] items-center justify-center sm:h-20 sm:max-w-[220px]">
             <Image
               src={logoUrl}
               alt={`Logo ${storeName}`}
-              width={128}
-              height={128}
+              fill
+              sizes="(max-width: 640px) 180px, 220px"
               className="object-contain"
             />
           </div>

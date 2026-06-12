@@ -242,6 +242,12 @@ describe('Navigation - all nav links render correctly', () => {
     const brandLink = screen.getByRole('link', { name: /home - andressa & eduardo/i });
     expect(brandLink).toHaveAttribute('href', '/');
   });
+
+  it('renders mobile shortcut to gift registry in the header', () => {
+    render(<Navbar />);
+    const giftShortcut = screen.getByRole('link', { name: /listas? de presentes/i });
+    expect(giftShortcut).toHaveAttribute('href', '/lista-de-presentes');
+  });
 });
 
 // ---------------------------------------------------------------------------

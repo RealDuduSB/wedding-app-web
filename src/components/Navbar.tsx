@@ -16,11 +16,32 @@ const navLinks = [
   { href: '/galeria', label: 'Galeria' },
 ];
 
+function GiftRegistryIcon() {
+  return (
+    <svg
+      className="h-5 w-5 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path d="M12 21V10" />
+      <path d="M4 10h16v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9Z" />
+      <path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H9a3 3 0 0 1 3 3v3H4.5A2.5 2.5 0 0 1 2 7.5v-1Z" />
+      <path d="M22 6.5A2.5 2.5 0 0 0 19.5 4H15a3 3 0 0 0-3 3v3h7.5A2.5 2.5 0 0 0 22 7.5v-1Z" />
+    </svg>
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const isGiftRegistryPage = pathname === '/lista-de-presentes';
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -88,31 +109,49 @@ export function Navbar() {
             })}
           </div>
 
-          <AnimatedButton
-            ref={menuButtonRef}
-            onClick={toggleMobileMenu}
-            className="md:hidden p-3 min-w-11 min-h-11 rounded-md hover:bg-wedding-primary-light focus:outline-none focus:ring-2 focus:ring-wedding-sky transition-colors flex items-center justify-center"
-            aria-expanded={isMobileMenuOpen}
-            aria-label={isMobileMenuOpen ? 'Fechar menu de navegacao' : 'Abrir menu de navegacao'}
-            aria-controls="mobile-menu"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
+          <div className="flex items-center gap-2 md:hidden">
+            <Link
+              href="/lista-de-presentes"
+              className={`flex min-h-11 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-wedding-sky focus:ring-offset-2 focus:ring-offset-wedding-primary ${
+                isGiftRegistryPage
+                  ? 'bg-white/15 text-white'
+                  : 'text-white/85 hover:bg-wedding-primary-light hover:text-white'
+              }`}
+              aria-label="Listas de presentes"
+              aria-current={isGiftRegistryPage ? 'page' : undefined}
             >
-              {isMobileMenuOpen ? (
-                <path d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </AnimatedButton>
+              <GiftRegistryIcon />
+              <span className="hidden min-[380px]:inline whitespace-nowrap">
+                Listas de presentes
+              </span>
+            </Link>
+
+            <AnimatedButton
+              ref={menuButtonRef}
+              onClick={toggleMobileMenu}
+              className="p-3 min-w-11 min-h-11 rounded-md hover:bg-wedding-primary-light focus:outline-none focus:ring-2 focus:ring-wedding-sky transition-colors flex items-center justify-center"
+              aria-expanded={isMobileMenuOpen}
+              aria-label={isMobileMenuOpen ? 'Fechar menu de navegacao' : 'Abrir menu de navegacao'}
+              aria-controls="mobile-menu"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                {isMobileMenuOpen ? (
+                  <path d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </AnimatedButton>
+          </div>
         </div>
       </div>
 
