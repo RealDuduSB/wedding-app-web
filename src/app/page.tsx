@@ -28,7 +28,7 @@ export default function Home() {
         {/* Couple Photo */}
         <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 mb-6 sm:mb-8 rounded-full overflow-hidden shadow-lg">
           <Image
-            src="/images/foto1_eduardo_andressa.jpg"
+            src="/images/gallery/ensaio-pre-wedding-andressa-e-eduardo-casa-de-vidro-franca-sp-heart-fotografia-044.jpg"
             alt={`${coupleNames.bride} e ${coupleNames.groom}`}
             fill
             className="object-cover"
